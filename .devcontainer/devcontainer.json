@@ -1,53 +1,41 @@
 {
     "name": "rbxtsc-speed-test",
-    // Use the main Dockerfile
     "build": {
         "dockerfile": "./dockerfile",
         "context": ".."
     },
-    // Override the entrypoint to avoid conflicts with volume mounts
     "shutdownAction": "stopContainer",
     "workspaceFolder": "/workspace",
-    // Mount the source code
     "mounts": [
         "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
     ],
-    // Use 'forwardPorts' to make a list of ports inside the container available locally.
     "forwardPorts": [
         3000,
         4000,
         8080
     ],
-    "postCreateCommand": "apt-get update && apt-get install -y dos2unix && find ./scripts -type f -name '*.sh' -exec dos2unix {} + && bash ./scripts/shell/postStart.sh",
-    // Configure container user
+    // Removed dos2unix installation and conversion from here
+    "postCreateCommand": "bash ./scripts/shell/postStart.sh",
     "remoteUser": "root",
-    // Ensure proper container environment
     "containerEnv": {
         "NODE_ENV": "development"
     },
-    // Set *default* container specific settings.json values on container create.
     "customizations": {
         "vscode": {
             "settings": {
-                // Editor configuration
                 "editor.defaultFormatter": "esbenp.prettier-vscode",
                 "eslint.format.enable": true,
                 "editor.insertSpaces": true,
                 "editor.formatOnSave": true,
                 "eslint.run": "onType",
-                // Prettier configuration
                 "prettier.bracketSameLine": false,
                 "prettier.trailingComma": "none",
                 "prettier.semi": false,
                 "prettier.tabWidth": 4,
-                // General editor configuration
                 "files.eol": "\n",
-                // JavaScript
                 "javascript.format.semicolons": "insert",
-                // Jest configuration
                 "jest.jestCommandLine": "npm run test:jest --",
                 "jest.runMode": "on-demand",
-                // Luau Language Server configuration
                 "luau-lsp.ignoreGlobs": [
                     "**/node_modules/**",
                     "**/old_common/**",
@@ -58,7 +46,6 @@
                     "**/dist/**",
                     "**/out/**"
                 ],
-                // Python configuration
                 "search.exclude": {
                     "node_modules": true,
                     "old_common": true,
@@ -66,17 +53,17 @@
                     "dist": true,
                     "out": true
                 },
-                // Terminal configuration
                 "terminal.integrated.fontFamily": "'Monaspace Radon Frozen', 'FiraCode Nerd Font'",
                 "terminal.integrated.defaultProfile.windows": "Git Bash",
-                // TypeScript configuration
                 "typescript.tsserver.path": "./node_modules/typescript/lib/tsserver.js",
                 "typescript.tsdk": "./node_modules/typescript/lib",
                 "typescript.enablePromptUseWorkspaceTsdk": true,
                 "typescript.format.semicolons": "insert",
-                // Language-specific overrides
                 "[json]": {
                     "editor.defaultFormatter": "vscode.json-language-features"
+                },
+                "[shellscript]": {
+                    "editor.defaultFormatter": "mkhl.shfmt"
                 }
             },
             "extensions": [
@@ -91,7 +78,6 @@
                 "foxundermoon.shell-format",
                 "tamasfe.even-better-toml",
                 "donjayamanne.githistory",
-                "shakram02.bash-beautify",
                 "dbaeumer.vscode-eslint",
                 "esbenp.prettier-vscode",
                 "johnnymorganz.luau-lsp",
@@ -101,7 +87,8 @@
                 "johnnymorganz.stylua",
                 "filiptibell.deputy",
                 "Orta.vscode-jest",
-                "eamodio.gitlens"
+                "eamodio.gitlens",
+                "mkhl.shfmt"
             ]
         }
     }

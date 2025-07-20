@@ -1,65 +1,57 @@
 FROM debian:trixie-slim
 
-# Set environment variables early, so they're available in RUN steps
 ENV DEBIAN_FRONTEND=noninteractive \
     VENV_PATH=/opt/venv \
     NODE_VERSION=20.x \
     ZSH_CUSTOM=/root/.oh-my-zsh/custom
 
-# Safer, more verbose shell for debugging
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
-# [1/6] Install system dependencies
-RUN echo "[1/6] Installing base packages..." && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-    bash build-essential ca-certificates curl git passwd \
-    python3 python3-pip python3-venv python3-certifi python3-urllib3 \
-    sudo unzip zsh file && \
+# 1. Install system deps + fzf + unzip + wget in one RUN with cleanup
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash build-essential ca-certificates curl git passwd python3 python3-pip \
+    python3-venv python3-certifi python3-urllib3 sudo unzip zsh file dos2unix fzf wget && \
     rm -rf /var/lib/apt/lists/*
 
+# 2. Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
+    apt-get update && apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/* && npm install -g npm@latest
 
-# [2/6] Install Node.js
-RUN echo "[2/6] Installing Node.js ${NODE_VERSION}..." && \
-    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends nodejs && \
-    rm -rf /var/lib/apt/lists/* && \
-    npm install -g npm@latest
-
-# [3/6] Install rokit 
-RUN echo "[3/6] Installing rokit & dependencies..." && \
-    curl -L -o /tmp/rokit.zip https://github.com/rojo-rbx/rokit/releases/download/v1.0.0/rokit-1.0.0-linux-x86_64.zip && \
-    apt-get update && apt-get install -y unzip && \
+# 3. Download and install rokit in one RUN
+RUN curl -L -o /tmp/rokit.zip https://github.com/rojo-rbx/rokit/releases/download/v1.0.0/rokit-1.0.0-linux-x86_64.zip && \
     unzip /tmp/rokit.zip -d /tmp/rokit && \
-    mv /tmp/rokit/rokit /usr/local/bin/rokit && \
-    chmod +x /usr/local/bin/rokit && \
+    mv /tmp/rokit/rokit /usr/local/bin/rokit && chmod +x /usr/local/bin/rokit && \
     rm -rf /tmp/rokit /tmp/rokit.zip
 
-# [4/6] Set up workspace and install Node.js dependencies
+# 3.5 Install shfmt (shell formatter) from GitHub release
+RUN curl -s https://api.github.com/repos/mvdan/sh/releases/latest \
+    | grep "browser_download_url.*shfmt_.*_linux_amd64" \
+    | cut -d '"' -f 4 \
+    | wget -qi - && \
+    chmod +x shfmt_*_linux_amd64 && \
+    mv shfmt_*_linux_amd64 /usr/local/bin/shfmt
+
 WORKDIR /workspace
-COPY --chown=node:node package*.json ./
 
-RUN echo "[4/6] Installing Node.js dependencies..." && \
-    npm cache clean --force && \
-    if [ -f package-lock.json ]; then \
-    npm ci --legacy-peer-deps; \
-    else \
-    npm install --legacy-peer-deps; \
-    fi && \
-    npm audit fix || true
+# 4. Copy package.json files and install Node deps to maximize caching
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps && npm audit fix || true
 
-# Copy application source code
+# 5. Copy rest of source
 COPY . .
 
-# [5/6] Setup Python virtual environment and install Python dependencies
-RUN echo "[5/6] Setting up Python virtual environment at ${VENV_PATH}..." && \
-    python3 -m venv ${VENV_PATH} && \
-    ${VENV_PATH}/bin/pip install --upgrade pip certifi urllib3
+# 6. Copy .p10k.zsh early so dos2unix works
+COPY .devcontainer/configuration/.p10k.zsh /root/.p10k.zsh
 
-# [6/6] Install Oh-My-Zsh, Powerlevel10k, and Zsh plugins, update .zshrc
-RUN echo "[6/6] Installing Oh-My-Zsh, Powerlevel10k theme, plugins, and autocomplete..." && \
-    apt-get update && apt-get install -y fzf && rm -rf /var/lib/apt/lists/* && \
+# 7. Fix line endings in scripts and .p10k.zsh
+RUN find ./scripts -type f -name '*.sh' -exec dos2unix {} + && dos2unix /root/.p10k.zsh
+
+# 8. Setup python venv and install pip deps (you can optimize by copying requirements.txt only)
+RUN python3 -m venv ${VENV_PATH} && ${VENV_PATH}/bin/pip install --upgrade pip certifi urllib3
+
+# 9. Install oh-my-zsh and plugins in one RUN step
+RUN apt-get update && apt-get install -y --no-install-recommends fzf && rm -rf /var/lib/apt/lists/* && \
     git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh && \
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM}/themes/powerlevel10k && \
     git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git ${ZSH_CUSTOM}/plugins/zsh-autosuggestions && \
@@ -77,11 +69,6 @@ RUN echo "[6/6] Installing Oh-My-Zsh, Powerlevel10k theme, plugins, and autocomp
     echo '[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh' >> ~/.zshrc && \
     chsh -s /bin/zsh || true
 
-
-
-COPY .devcontainer/configuration/.p10k.zsh /root/.p10k.zsh
-
-# Set default shell
-CMD ["zsh"]
-
 ENV PATH="/root/.rokit/bin:${PATH}"
+
+CMD ["zsh"]

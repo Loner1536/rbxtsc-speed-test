@@ -1,0 +1,55 @@
+{
+  "name": "lobby",
+  "emitLegacyScripts": false,
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "rbxts": {
+        "$path": "../../../out/include"
+      },
+      "$path": "../../../out/include",
+      "node_modules": {
+        "$className": "Folder",
+        "@rbxts": {
+          "$path": "node_modules/@rbxts"
+        },
+        "@flamework": {
+          "$path": "node_modules/@flamework"
+        },
+        "@rbxts-js": {
+          "$path": "node_modules/@rbxts-js"
+        }
+      },
+      "base": {
+        "$className": "Folder",
+        "client": {
+          "$path": "../../../out/base/client"
+        },
+        "shared": {
+          "$path": "../../../out/base/shared"
+        }
+      },
+      "lobby": {
+        "$className": "Folder",
+        "client": {
+          "$path": "../../../out/lobby/client"
+        },
+        "shared": {
+          "$path": "../../../out/lobby/shared"
+        }
+      }
+    },
+    "ServerScriptService": {
+      "base": {
+        "server": {
+          "$path": "../../../out/base/server"
+        }
+      },
+      "lobby": {
+        "server": {
+          "$path": "../../../out/lobby/server"
+        }
+      }
+    }
+  }
+}

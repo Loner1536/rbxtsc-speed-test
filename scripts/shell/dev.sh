@@ -1,83 +1,113 @@
 #!/bin/bash
 set -euo pipefail
 
-PLACE=$1
+# 🟡 Colors
+BOLD="\033[1m"
+RESET="\033[0m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+CYAN="\033[36m"
+RED="\033[31m"
 
+print_step() {
+    echo -e "${BLUE}➤${RESET} ${BOLD}$1${RESET}"
+}
+
+print_done() {
+    echo -e "${GREEN}✔${RESET} ${BOLD}$1${RESET}\n"
+}
+
+print_warn() {
+    echo -e "${YELLOW}⚠${RESET} ${BOLD}$1${RESET}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${RESET}"
+}
+
+# 🧠 Args
+PLACE=${1:-}
 if [ -z "$PLACE" ]; then
-    echo "Usage: $0 <place-name>"
+    print_error "Usage: $0 <place-name>"
     exit 1
 fi
 
+# 📁 Setup paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 ROOT_DIR="$SCRIPT_DIR/../.."
-
 BASE_DIR="$ROOT_DIR/sources/base"
-BASE_PROJECT="$BASE_DIR/base.project.json"
-BASE_TSCONFIG="$BASE_DIR/base.tsconfig.json"
-
 PLACE_DIR="$ROOT_DIR/sources/$PLACE"
-PLACE_PROJECT="$PLACE_DIR/$PLACE.project.json"
-PLACE_TSCONFIG="$PLACE_DIR/$PLACE.tsconfig.json"
 
-check_file() {
-    if [ ! -f "$1" ]; then
-        echo "❌ Required file not found: $1"
-        exit 1
-    fi
-}
-
-check_file "$ROOT_DIR/package.json"
-check_file "$BASE_PROJECT"
-check_file "$BASE_TSCONFIG"
-check_file "$PLACE_PROJECT"
-check_file "$PLACE_TSCONFIG"
+if [ ! -f "$ROOT_DIR/package.json" ]; then
+    print_error "Required file not found: package.json in root"
+    exit 1
+fi
 
 cd "$ROOT_DIR"
 
-# Symlink node_modules to both base and $PLACE
+print_step "🧹 Cleaning output and build files..."
+rm -rf out
+rm -f "$BASE_DIR/build/default.project.json" "$PLACE_DIR/build/default.project.json"
+rm -f "$BASE_DIR/build/tsconfig.json" "$PLACE_DIR/build/tsconfig.json"
+rm -rf "$BASE_DIR/build/node_modules" "$PLACE_DIR/build/node_modules"
+print_done "Clean complete."
+
+# 🔗 Symlink node_modules
 link_node_modules() {
-    local dir=$1
-    if [ -e "$dir/node_modules" ] && [ ! -L "$dir/node_modules" ]; then
-        echo "⚠️ Removing existing node_modules in $dir"
-        rm -rf "$dir/node_modules"
-    fi
-    if [ ! -L "$dir/node_modules" ]; then
-        echo "🔗 Linking node_modules to $dir"
-        ln -s "$ROOT_DIR/node_modules" "$dir/node_modules"
-    fi
+    print_step "🔗 Linking node_modules → $1"
+    ln -sf "$ROOT_DIR/node_modules" "$1/build/node_modules"
+    print_done "Linked node_modules for $1"
 }
 link_node_modules "$BASE_DIR"
 link_node_modules "$PLACE_DIR"
 
-echo "[1/5] 📦 Installing npm packages..."
-npm install
+# 📦 npm install check
+PKG_JSON="$ROOT_DIR/package.json"
+PKG_LOCK="$ROOT_DIR/package-lock.json"
+NPM_STAMP="$ROOT_DIR/.npm_installed_stamp"
 
-echo "[2/5] 🔌 Installing Rokit packages..."
+if [ ! -f "$NPM_STAMP" ] || [ "$PKG_JSON" -nt "$NPM_STAMP" ] || [ "$PKG_LOCK" -nt "$NPM_STAMP" ]; then
+    print_step "📦 Running npm install (dependencies changed)..."
+    npm install
+    touch "$NPM_STAMP"
+    print_done "npm install complete."
+else
+    print_step "📦 Skipping npm install (no changes)."
+    print_done "npm install skipped."
+fi
+
+# 🔧 Project setup
+print_step "⚙️ Running rokit install..."
 rokit install --no-trust-check
+print_done "rokit install complete."
 
-echo "[3/5] 🧹 Cleaning previous build files..."
-rm -rf "$ROOT_DIR/out"
+print_step "🌳 Generating Rojo Trees..."
+node "$ROOT_DIR/scripts/java/genRojoTree.js" base
+node "$ROOT_DIR/scripts/java/genRojoTree.js" "$PLACE"
+print_done "Rojo Trees generated."
 
-echo "[4/5] 🚀 Starting rbxtsc watch on base and $PLACE..."
+print_step "🧠 Generating TS Configs..."
+node "$ROOT_DIR/scripts/java/genTSConfig.js" base
+node "$ROOT_DIR/scripts/java/genTSConfig.js" "$PLACE"
+print_done "TS Configs generated."
 
-# Run both in background
-npx rbxtsc --watch --project "$BASE_TSCONFIG" --verbose &
+# 🚀 Compilation
+print_step "📁 Preparing output directory..."
+mkdir -p "$ROOT_DIR/out/include"
+print_done "Output directory ready."
+
+print_step "🚀 Starting TypeScript compilation..."
+
+npx rbxtsc -w -p "$BASE_DIR/build/tsconfig.json" --rojo "$BASE_DIR/build/default.project.json" -i out/include &
 BASE_PID=$!
 
-npx rbxtsc --watch --rojo "$PLACE_PROJECT" --project "$PLACE_TSCONFIG" --verbose &
+npx rbxtsc -w -p "$PLACE_DIR/build/tsconfig.json" --rojo "$PLACE_DIR/build/default.project.json" -i out/include &
 PLACE_PID=$!
 
-# Wait for compilation of both by checking .tsbuildinfo files existence
-echo "⏳ Waiting for initial compilation..."
+# Trap Ctrl+C to kill both watchers cleanly
+trap 'echo -e "\n${YELLOW}⚠️ Interrupt received, stopping watchers...${RESET}"; kill $BASE_PID $PLACE_PID; exit 1' SIGINT
 
-until [ -f "$ROOT_DIR/out/base.tsbuildinfo" ] && [ -f "$ROOT_DIR/out/$PLACE.tsbuildinfo" ]; do
-    sleep 1
-done
+wait $BASE_PID $PLACE_PID
 
-echo "✅ Both compiled! Launching Rojo for $PLACE..."
-
-rojo serve "$PLACE_PROJECT"
-
-# Wait on both watchers
-wait $BASE_PID
-wait $PLACE_PID
+print_done "Compilation complete."
