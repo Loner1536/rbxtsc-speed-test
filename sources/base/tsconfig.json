@@ -1,0 +1,27 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "tsBuildInfoFile": "../../out/base.tsbuildinfo",
+        "outDir": "../../out/base",
+        "incremental": true,
+        "rootDir": "src",
+        "baseUrl": ".",
+        "typeRoots": [
+            "node_modules/@rbxts"
+        ],
+        "paths": {
+            "@shared/*": [
+                "src/shared/*"
+            ],
+            "@server/*": [
+                "src/server/*"
+            ],
+            "@client/*": [
+                "src/client/*"
+            ]
+        }
+    },
+    "include": [
+        "src"
+    ]
+}

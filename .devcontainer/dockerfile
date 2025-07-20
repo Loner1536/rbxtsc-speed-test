@@ -1,0 +1,87 @@
+FROM debian:trixie-slim
+
+# Set environment variables early, so they're available in RUN steps
+ENV DEBIAN_FRONTEND=noninteractive \
+    VENV_PATH=/opt/venv \
+    NODE_VERSION=20.x \
+    ZSH_CUSTOM=/root/.oh-my-zsh/custom
+
+# Safer, more verbose shell for debugging
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+
+# [1/6] Install system dependencies
+RUN echo "[1/6] Installing base packages..." && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    bash build-essential ca-certificates curl git passwd \
+    python3 python3-pip python3-venv python3-certifi python3-urllib3 \
+    sudo unzip zsh file && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# [2/6] Install Node.js
+RUN echo "[2/6] Installing Node.js ${NODE_VERSION}..." && \
+    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm install -g npm@latest
+
+# [3/6] Install rokit 
+RUN echo "[3/6] Installing rokit & dependencies..." && \
+    curl -L -o /tmp/rokit.zip https://github.com/rojo-rbx/rokit/releases/download/v1.0.0/rokit-1.0.0-linux-x86_64.zip && \
+    apt-get update && apt-get install -y unzip && \
+    unzip /tmp/rokit.zip -d /tmp/rokit && \
+    mv /tmp/rokit/rokit /usr/local/bin/rokit && \
+    chmod +x /usr/local/bin/rokit && \
+    rm -rf /tmp/rokit /tmp/rokit.zip
+
+# [4/6] Set up workspace and install Node.js dependencies
+WORKDIR /workspace
+COPY --chown=node:node package*.json ./
+
+RUN echo "[4/6] Installing Node.js dependencies..." && \
+    npm cache clean --force && \
+    if [ -f package-lock.json ]; then \
+    npm ci --legacy-peer-deps; \
+    else \
+    npm install --legacy-peer-deps; \
+    fi && \
+    npm audit fix || true
+
+# Copy application source code
+COPY . .
+
+# [5/6] Setup Python virtual environment and install Python dependencies
+RUN echo "[5/6] Setting up Python virtual environment at ${VENV_PATH}..." && \
+    python3 -m venv ${VENV_PATH} && \
+    ${VENV_PATH}/bin/pip install --upgrade pip certifi urllib3
+
+# [6/6] Install Oh-My-Zsh, Powerlevel10k, and Zsh plugins, update .zshrc
+RUN echo "[6/6] Installing Oh-My-Zsh, Powerlevel10k theme, plugins, and autocomplete..." && \
+    apt-get update && apt-get install -y fzf && rm -rf /var/lib/apt/lists/* && \
+    git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh && \
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM}/themes/powerlevel10k && \
+    git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git ${ZSH_CUSTOM}/plugins/zsh-autosuggestions && \
+    git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting && \
+    git clone --depth=1 https://github.com/zsh-users/zsh-completions.git ${ZSH_CUSTOM}/plugins/zsh-completions && \
+    git clone --depth=1 https://github.com/Aloxaf/fzf-tab.git ${ZSH_CUSTOM}/plugins/fzf-tab && \
+    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && \
+    sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' ~/.zshrc && \
+    sed -i 's/^plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions fzf-tab)/' ~/.zshrc && \
+    echo 'source ~/.p10k.zsh' >> ~/.zshrc && \
+    echo 'export ZSH_DISABLE_COMPFIX=true' >> ~/.zshrc && \
+    echo -e '\n# Export env vars\nexport VENV_PATH=/opt/venv\nexport NODE_VERSION=20.x\nexport ZSH_CUSTOM=/root/.oh-my-zsh/custom\n' >> ~/.zshrc && \
+    echo 'export PATH=$PATH:/usr/local/bin' >> ~/.zshrc && \
+    echo '[ -f /usr/share/doc/fzf/examples/completion.zsh ] && source /usr/share/doc/fzf/examples/completion.zsh' >> ~/.zshrc && \
+    echo '[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh' >> ~/.zshrc && \
+    chsh -s /bin/zsh || true
+
+
+
+COPY .devcontainer/configuration/.p10k.zsh /root/.p10k.zsh
+
+# Set default shell
+CMD ["zsh"]
+
+ENV PATH="/root/.rokit/bin:${PATH}"

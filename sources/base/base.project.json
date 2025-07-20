@@ -1,0 +1,39 @@
+{
+    "name": "lobby",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+            "base": {
+                "$className": "Folder",
+                "client": {
+                    "$path": "../../out/base/client"
+                },
+                "shared": {
+                    "$path": "../../out/base/shared"
+                }
+            },
+            "rbxts_include": {
+                "$path": "include",
+                "node_modules": {
+                    "$className": "Folder",
+                    "@rbxts": {
+                        "$path": "node_modules/@rbxts"
+                    },
+                    "@rbxts-js": {
+                        "$path": "node_modules/@rbxts-js"
+                    }
+                }
+            }
+        },
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "base": {
+                "$className": "Folder",
+                "server": {
+                    "$path": "../../out/base/server"
+                }
+            }
+        }
+    }
+}

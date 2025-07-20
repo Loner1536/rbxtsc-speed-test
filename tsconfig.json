@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "Node",
+        "downlevelIteration": true,
+        "moduleDetection": "force",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "module": "commonjs",
+        "skipLibCheck": true,
+        "incremental": true,
+        "target": "ESNext",
+        "baseUrl": ".",
+        "strict": true,
+        "noLib": true,
+        "typeRoots": [
+            "node_modules/@rbxts"
+        ],
+    }
+}

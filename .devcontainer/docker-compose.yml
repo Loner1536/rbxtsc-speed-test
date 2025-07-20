@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  roblox-dev:
+    container_name: rbxtsc-speed-test
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: roblox-ts-dev:latest
+    volumes:
+      - .:/workspace:cached         # Mount source code into container
+      - node_modules:/workspace/node_modules
+    working_dir: /workspace
+    environment:
+      - VENV_PATH=/opt/venv
+      - NODE_VERSION=20.x
+      - ZSH_CUSTOM=/root/.oh-my-zsh/custom
+      - PATH=/root/.rokit/bin:/usr/local/bin:$PATH
+    command: zsh
+    stdin_open: true
+    tty: true
+
+volumes:
+  node_modules:

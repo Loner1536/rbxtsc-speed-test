@@ -1,0 +1,49 @@
+{
+    "name": "rbxtsc-speed-test",
+    "version": "1.0.0",
+    "main": "index.js",
+    "description": "",
+    "license": "ISC",
+    "keywords": [],
+    "author": "",
+    "devDependencies": {
+        "@isentinel/eslint-config": "^0.10.0",
+        "@jest/globals": "^30.0.4",
+        "@rbxts/compiler-types": "^3.0.0-types.0",
+        "@rbxts/jest": "^3.13.2-alpha.1",
+        "@rbxts/jest-globals": "^3.13.2-alpha.1",
+        "@rbxts/types": "^1.0.864",
+        "@rbxts/ui-labs": "^2.4.0",
+        "@types/jest": "^30.0.0",
+        "@types/node": "^24.0.13",
+        "eslint": "^9.31.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-prettier": "^5.5.1",
+        "eslint-plugin-roblox-ts-x": "^2.0.0",
+        "jest": "^30.0.4",
+        "jest-mock-extended": "^4.0.0",
+        "prettier": "^3.6.2",
+        "rbxts-transformer-optimizer": "^1.0.3",
+        "roblox-ts": "^3.0.0",
+        "ts-jest": "^29.4.0",
+        "typescript": "=5.5.3",
+        "typescript-eslint": "^8.36.0"
+    },
+    "dependencies": {
+        "@rbxts/character-promise": "^1.0.2",
+        "@rbxts/charm": "^0.10.0",
+        "@rbxts/charm-sync": "^0.3.0",
+        "@rbxts/janitor": "^1.18.3-ts.0",
+        "@rbxts/jecs": "^0.8.3",
+        "@rbxts/lemon-signal": "^1.2.0",
+        "@rbxts/lyra": "^0.6.0",
+        "@rbxts/services": "^1.5.5",
+        "@rbxts/t": "^3.2.1",
+        "@rbxts/validate-tree": "^2.0.2",
+        "@rbxts/vide": "^0.5.7",
+        "concurrently": "^9.2.0"
+    },
+    "overrides": {
+        "glob": "^9.3.5"
+    }
+}
