@@ -1,0 +1,34 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../dist/out/lobby.tsbuildinfo",
+    "outDir": "../dist/out/lobby",
+    "rootDir": "lobby/src",
+    "baseUrl": ".",
+    "typeRoots": [
+      "node_modules/@rbxts",
+      "node_modules/@flamework"
+    ],
+    "paths": {
+      "@shared/*": [
+        "lobby/src/shared/*"
+      ],
+      "@server/*": [
+        "lobby/src/server/*"
+      ],
+      "@client/*": [
+        "lobby/src/client/*"
+      ]
+    },
+    "plugins": [
+      {
+        "transform": "rbxts-transformer-flamework",
+        "obfuscation": true
+      }
+    ]
+  },
+  "include": [
+    "lobby/src"
+  ],
+  "exclude": []
+}

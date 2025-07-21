@@ -1,8 +1,5 @@
-import { Controller, OnStart } from "@flamework/core"
+import { Flamework } from "@flamework/core"
 
-@Controller({})
-export class Client implements OnStart {
-    onStart(): void {
-        print("Base Client")
-    }
-}
+Flamework.addPaths("dist/out/base/client/controllers")
+
+Flamework.ignite()

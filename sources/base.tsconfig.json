@@ -1,0 +1,34 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../dist/out/base.tsbuildinfo",
+    "outDir": "../dist/out/base",
+    "rootDir": "base/src",
+    "baseUrl": ".",
+    "typeRoots": [
+      "node_modules/@rbxts",
+      "node_modules/@flamework"
+    ],
+    "paths": {
+      "@shared/*": [
+        "base/src/shared/*"
+      ],
+      "@server/*": [
+        "base/src/server/*"
+      ],
+      "@client/*": [
+        "base/src/client/*"
+      ]
+    },
+    "plugins": [
+      {
+        "transform": "rbxts-transformer-flamework",
+        "obfuscation": true
+      }
+    ]
+  },
+  "include": [
+    "base/src"
+  ],
+  "exclude": []
+}

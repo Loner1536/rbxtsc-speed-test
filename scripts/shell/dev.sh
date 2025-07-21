@@ -33,7 +33,7 @@ if [ -z "$PLACE" ]; then
     exit 1
 fi
 
-# Default INCLUDE_BASE to false unless PLACE is "base"
+# Default INCLUDE_BASE to false if PLACE is "base", else true
 INCLUDE_BASE=${2:-}
 if [ -z "$INCLUDE_BASE" ]; then
     if [ "$PLACE" = "base" ]; then
@@ -46,39 +46,36 @@ fi
 # 📁 Setup paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 ROOT_DIR="$SCRIPT_DIR/../.."
-BASE_DIR="$ROOT_DIR/sources/base"
-PLACE_DIR="$ROOT_DIR/sources/$PLACE"
 
-if [ ! -f "$ROOT_DIR/package.json" ]; then
-    print_error "Required file not found: package.json in root"
+SOURCES_DIR="$ROOT_DIR/sources"
+BASE_DIR="$SOURCES_DIR/base"
+PLACE_DIR="$SOURCES_DIR/$PLACE"
+
+# Since tsconfig and project jsons are directly under sources/
+BASE_TSCONFIG="$SOURCES_DIR/base.tsconfig.json"
+PLACE_TSCONFIG="$SOURCES_DIR/$PLACE.tsconfig.json"
+
+BASE_PROJECT="$SOURCES_DIR/base.project.json"
+PLACE_PROJECT="$SOURCES_DIR/$PLACE.project.json"
+
+if [ ! -f "$SOURCES_DIR/package.json" ]; then
+    print_error "Required file not found: package.json in sources root"
     exit 1
 fi
 
-cd "$ROOT_DIR"
-
 print_step "🧹 Cleaning output and build files..."
-rm -rf out
-rm -f "$BASE_DIR/build/default.project.json" "$PLACE_DIR/build/default.project.json"
+
 rm -f "$ROOT_DIR/dist/out/base.tsbuildinfo" "$ROOT_DIR/dist/out/$PLACE.tsbuildinfo"
-rm -f "$BASE_DIR/build/tsconfig.json" "$PLACE_DIR/build/tsconfig.json"
-rm -rf "$BASE_DIR/build/node_modules" "$PLACE_DIR/build/node_modules"
+rm -f "$BASE_PROJECT" "$PLACE_PROJECT"
+rm -f "$BASE_TSCONFIG" "$PLACE_TSCONFIG"
+rm -rf "$BASE_DIR/node_modules" "$PLACE_DIR/node_modules"
+rm -rf out
+
 print_done "Clean complete."
 
-# 🔗 Symlink node_modules
-link_node_modules() {
-    print_step "🔗 Linking node_modules → $1"
-    ln -sf "$ROOT_DIR/node_modules" "$1/build/node_modules"
-    print_done "Linked node_modules for $1"
-}
-
-if [[ "$INCLUDE_BASE" != "false" ]]; then
-    link_node_modules "$BASE_DIR"
-fi
-link_node_modules "$PLACE_DIR"
-
-print_step "📦 Running npm install..."
-npm install
-print_done "npm install complete."
+print_step "📦 Ensuring roblox-ts is installed..."
+npm install --prefix $SOURCES_DIR
+print_done "roblox-ts installed."
 
 print_step "⚙️ Running rokit install..."
 rokit install --no-trust-check
@@ -101,13 +98,13 @@ print_done "Output directory ready."
 print_step "🚀 Starting TypeScript compilation..."
 
 if [[ "$INCLUDE_BASE" != "false" ]]; then
-    npx rbxtsc -w -p "$BASE_DIR/build/tsconfig.json" --rojo "$BASE_DIR/build/default.project.json" -i dist/include &
+    rbxtsc -w -p "$BASE_TSCONFIG" --rojo "$BASE_PROJECT" -i dist/include &
     BASE_PID=$!
 else
     BASE_PID=""
 fi
 
-npx rbxtsc -w -p "$PLACE_DIR/build/tsconfig.json" --rojo "$PLACE_DIR/build/default.project.json" -i dist/include &
+rbxtsc -w -p "$PLACE_TSCONFIG" --rojo "$PLACE_PROJECT" -i dist/include &
 PLACE_PID=$!
 
 trap 'echo -e "\n${YELLOW}⚠️ Interrupt received, stopping watchers...${RESET}"; [[ -n "$BASE_PID" ]] && kill $BASE_PID; kill $PLACE_PID; exit 1' SIGINT

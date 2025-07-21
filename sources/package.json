@@ -34,6 +34,7 @@
         "@rbxts/character-promise": "^1.0.2",
         "@rbxts/charm": "^0.10.0",
         "@rbxts/charm-sync": "^0.3.0",
+        "@rbxts/flamework": "^0.0.11",
         "@rbxts/janitor": "^1.18.3-ts.0",
         "@rbxts/jecs": "^0.8.3",
         "@rbxts/lemon-signal": "^1.2.0",

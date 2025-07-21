@@ -1,26 +1,25 @@
-const fs = require("fs")
-const path = require("path")
+const fs = require("fs");
+const path = require("path");
 
-const feature = process.argv[2]
-const includeBase = process.argv[3] !== "false" // default true unless explicitly false
+const feature = process.argv[2];
+const includeBase = process.argv[3] !== "false"; // default: true
 
 if (!feature) {
-    console.error(
-        "❌ Usage: node genRojoTree.js <feature> [includeBase=true|false]"
-    )
-    process.exit(1)
+    console.error("❌ Usage: node genRojoTree.js <feature> [includeBase=true|false]");
+    process.exit(1);
 }
 
-const toPosix = (p) => p.split(path.sep).join("/")
-const outputDir = path.join("sources", feature, "build")
+const toPosix = (p) => p.split(path.sep).join("/");
 
-function relativeToOutputDir(targetPath) {
-    return toPosix(path.relative(outputDir, targetPath))
+// Base directory for relative pathing and output
+const sourcesDir = "sources";
+
+function relativeToSources(targetPath) {
+    return toPosix(path.relative(sourcesDir, targetPath));
 }
+
 function nodeModulesPath(packageName) {
-    return relativeToOutputDir(
-        path.join(outputDir, "node_modules", packageName)
-    )
+    return relativeToSources(path.join(sourcesDir, "node_modules", packageName));
 }
 
 function makeClientEntry(name) {
@@ -28,39 +27,40 @@ function makeClientEntry(name) {
         [name]: {
             $className: "Folder",
             client: {
-                $path: relativeToOutputDir(
-                    path.join("dist/out", name, "client")
-                )
+                $path: relativeToSources(path.join("dist/out", name, "client")),
+                controllers: {
+                    $path: relativeToSources(path.join("dist/out", name, "client", "controllers"))
+                }
             },
             shared: {
-                $path: relativeToOutputDir(
-                    path.join("dist/out", name, "shared")
-                )
+                $path: relativeToSources(path.join("dist/out", name, "shared"))
             }
         }
-    }
+    };
 }
 
 function makeServerEntry(name) {
     return {
         [name]: {
             server: {
-                $path: relativeToOutputDir(
-                    path.join("dist/out", name, "server")
-                )
+                $path: relativeToSources(path.join("dist/out", name, "server")),
+                services: {
+                    $path: relativeToSources(path.join("dist/out", name, "server", "services"))
+                }
             }
         }
-    }
+    };
 }
 
+// Rojo project structure
 const tree = {
     name: feature,
     emitLegacyScripts: false,
     tree: {
         $className: "DataModel",
         ReplicatedStorage: {
-            rbxts: {
-                $path: relativeToOutputDir("dist/include"),
+            rbxts_include: {
+                $path: relativeToSources("dist/include"),
                 node_modules: {
                     $className: "Folder",
                     "@rbxts": {
@@ -77,18 +77,21 @@ const tree = {
         },
         ServerScriptService: {}
     }
-}
+};
 
+// Add base if requested
 if (includeBase) {
-    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"))
-    Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"))
+    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"));
+    Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"));
 }
 
-Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature))
-Object.assign(tree.tree.ServerScriptService, makeServerEntry(feature))
+// Always include the current feature
+Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature));
+Object.assign(tree.tree.ServerScriptService, makeServerEntry(feature));
 
-fs.mkdirSync(outputDir, { recursive: true })
+// Ensure `sources/` exists and write the .project.json
+fs.mkdirSync(sourcesDir, { recursive: true });
 fs.writeFileSync(
-    path.join(outputDir, "default.project.json"),
+    path.join(sourcesDir, `${feature}.project.json`),
     JSON.stringify(tree, null, 2)
-)
+);

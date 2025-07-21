@@ -4,8 +4,8 @@
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
-      "rbxts": {
-        "$path": "../../../dist/include",
+      "rbxts_include": {
+        "$path": "../dist/include",
         "node_modules": {
           "$className": "Folder",
           "@rbxts": {
@@ -22,31 +22,43 @@
       "base": {
         "$className": "Folder",
         "client": {
-          "$path": "../../../dist/out/base/client"
+          "$path": "../dist/out/base/client",
+          "controllers": {
+            "$path": "../dist/out/base/client/controllers"
+          }
         },
         "shared": {
-          "$path": "../../../dist/out/base/shared"
+          "$path": "../dist/out/base/shared"
         }
       },
       "lobby": {
         "$className": "Folder",
         "client": {
-          "$path": "../../../dist/out/lobby/client"
+          "$path": "../dist/out/lobby/client",
+          "controllers": {
+            "$path": "../dist/out/lobby/client/controllers"
+          }
         },
         "shared": {
-          "$path": "../../../dist/out/lobby/shared"
+          "$path": "../dist/out/lobby/shared"
         }
       }
     },
     "ServerScriptService": {
       "base": {
         "server": {
-          "$path": "../../../dist/out/base/server"
+          "$path": "../dist/out/base/server",
+          "services": {
+            "$path": "../dist/out/base/server/services"
+          }
         }
       },
       "lobby": {
         "server": {
-          "$path": "../../../dist/out/lobby/server"
+          "$path": "../dist/out/lobby/server",
+          "services": {
+            "$path": "../dist/out/lobby/server/services"
+          }
         }
       }
     }

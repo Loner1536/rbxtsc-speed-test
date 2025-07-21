@@ -1,8 +1,5 @@
-import { Service, OnStart } from "@flamework/core"
+import { Flamework } from "@flamework/core"
 
-@Service({})
-export class Server implements OnStart {
-    onStart(): void {
-        print("Lobby Server")
-    }
-}
+Flamework.addPaths("dist/out/lobby/server/services")
+
+Flamework.ignite()

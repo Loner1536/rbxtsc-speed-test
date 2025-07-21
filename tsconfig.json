@@ -15,15 +15,5 @@
         "baseUrl": ".",
         "strict": true,
         "noLib": true,
-        "typeRoots": [
-            "node_modules/@rbxts",
-            "node_modules/@flamework"
-        ],
-        "plugins": [
-            {
-                "transform": "rbxts-transformer-flamework",
-                "obfuscation": true
-            }
-        ]
     }
 }
