@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../dist/out/base.tsbuildinfo",
+    "outDir": "../../../dist/out/base",
+    "rootDir": "../src",
+    "baseUrl": "../src",
+    "typeRoots": [
+      "node_modules/@rbxts",
+      "node_modules/@flamework"
+    ],
+    "paths": {
+      "@shared/*": [
+        "../src/shared/*"
+      ],
+      "@server/*": [
+        "../src/server/*"
+      ],
+      "@client/*": [
+        "../src/client/*"
+      ]
+    }
+  },
+  "include": [
+    "../src"
+  ]
+}

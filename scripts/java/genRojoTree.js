@@ -2,8 +2,12 @@ const fs = require("fs")
 const path = require("path")
 
 const feature = process.argv[2]
+const includeBase = process.argv[3] !== "false" // default true unless explicitly false
+
 if (!feature) {
-    console.error("❌ Usage: node genRojoTree.js <feature>")
+    console.error(
+        "❌ Usage: node genRojoTree.js <feature> [includeBase=true|false]"
+    )
     process.exit(1)
 }
 
@@ -75,15 +79,13 @@ const tree = {
     }
 }
 
-// Don't overwrite rbxts — it's already in the tree object above now.
-
-Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"))
-Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"))
-
-if (feature !== "base") {
-    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature))
-    Object.assign(tree.tree.ServerScriptService, makeServerEntry(feature))
+if (includeBase) {
+    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"))
+    Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"))
 }
+
+Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature))
+Object.assign(tree.tree.ServerScriptService, makeServerEntry(feature))
 
 fs.mkdirSync(outputDir, { recursive: true })
 fs.writeFileSync(

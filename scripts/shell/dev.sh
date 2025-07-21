@@ -33,6 +33,16 @@ if [ -z "$PLACE" ]; then
     exit 1
 fi
 
+# Default INCLUDE_BASE to false unless PLACE is "base"
+INCLUDE_BASE=${2:-}
+if [ -z "$INCLUDE_BASE" ]; then
+    if [ "$PLACE" = "base" ]; then
+        INCLUDE_BASE="false"
+    else
+        INCLUDE_BASE="true"
+    fi
+fi
+
 # 📁 Setup paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 ROOT_DIR="$SCRIPT_DIR/../.."
@@ -60,25 +70,23 @@ link_node_modules() {
     ln -sf "$ROOT_DIR/node_modules" "$1/build/node_modules"
     print_done "Linked node_modules for $1"
 }
-link_node_modules "$BASE_DIR"
-link_node_modules "$PLACE_DIR"
 
-# 📦 npm install check
-PKG_JSON="$ROOT_DIR/package.json"
-PKG_LOCK="$ROOT_DIR/package-lock.json"
+if [[ "$INCLUDE_BASE" != "false" ]]; then
+    link_node_modules "$BASE_DIR"
+fi
+link_node_modules "$PLACE_DIR"
 
 print_step "📦 Running npm install..."
 npm install
 print_done "npm install complete."
 
-# 🔧 Project setup
 print_step "⚙️ Running rokit install..."
 rokit install --no-trust-check
 print_done "rokit install complete."
 
 print_step "🌳 Generating Rojo Trees..."
-node "$ROOT_DIR/scripts/java/genRojoTree.js" base
-node "$ROOT_DIR/scripts/java/genRojoTree.js" "$PLACE"
+node "$ROOT_DIR/scripts/java/genRojoTree.js" base false
+node "$ROOT_DIR/scripts/java/genRojoTree.js" "$PLACE" "$INCLUDE_BASE"
 print_done "Rojo Trees generated."
 
 print_step "🧠 Generating TS Configs..."
@@ -86,22 +94,28 @@ node "$ROOT_DIR/scripts/java/genTSConfig.js" base
 node "$ROOT_DIR/scripts/java/genTSConfig.js" "$PLACE"
 print_done "TS Configs generated."
 
-# 🚀 Compilation
 print_step "📁 Preparing output directory..."
-mkdir -p "$ROOT_DIR/out/include"
+rm -rf "$ROOT_DIR/dist/include"
 print_done "Output directory ready."
 
 print_step "🚀 Starting TypeScript compilation..."
 
-npx rbxtsc -w -p "$BASE_DIR/build/tsconfig.json" --rojo "$BASE_DIR/build/default.project.json" -i dist/include &
-BASE_PID=$!
+if [[ "$INCLUDE_BASE" != "false" ]]; then
+    npx rbxtsc -w -p "$BASE_DIR/build/tsconfig.json" --rojo "$BASE_DIR/build/default.project.json" -i dist/include &
+    BASE_PID=$!
+else
+    BASE_PID=""
+fi
 
 npx rbxtsc -w -p "$PLACE_DIR/build/tsconfig.json" --rojo "$PLACE_DIR/build/default.project.json" -i dist/include &
 PLACE_PID=$!
 
-# Trap Ctrl+C to kill both watchers cleanly
-trap 'echo -e "\n${YELLOW}⚠️ Interrupt received, stopping watchers...${RESET}"; kill $BASE_PID $PLACE_PID; exit 1' SIGINT
+trap 'echo -e "\n${YELLOW}⚠️ Interrupt received, stopping watchers...${RESET}"; [[ -n "$BASE_PID" ]] && kill $BASE_PID; kill $PLACE_PID; exit 1' SIGINT
 
-wait $BASE_PID $PLACE_PID
+if [[ -n "$BASE_PID" ]]; then
+    wait $BASE_PID $PLACE_PID
+else
+    wait $PLACE_PID
+fi
 
 print_done "Compilation complete."
