@@ -49,6 +49,7 @@ cd "$ROOT_DIR"
 print_step "🧹 Cleaning output and build files..."
 rm -rf out
 rm -f "$BASE_DIR/build/default.project.json" "$PLACE_DIR/build/default.project.json"
+rm -f "$ROOT_DIR/dist/out/base.tsbuildinfo" "$ROOT_DIR/dist/out/$PLACE.tsbuildinfo"
 rm -f "$BASE_DIR/build/tsconfig.json" "$PLACE_DIR/build/tsconfig.json"
 rm -rf "$BASE_DIR/build/node_modules" "$PLACE_DIR/build/node_modules"
 print_done "Clean complete."
@@ -65,17 +66,10 @@ link_node_modules "$PLACE_DIR"
 # 📦 npm install check
 PKG_JSON="$ROOT_DIR/package.json"
 PKG_LOCK="$ROOT_DIR/package-lock.json"
-NPM_STAMP="$ROOT_DIR/.npm_installed_stamp"
 
-if [ ! -f "$NPM_STAMP" ] || [ "$PKG_JSON" -nt "$NPM_STAMP" ] || [ "$PKG_LOCK" -nt "$NPM_STAMP" ]; then
-    print_step "📦 Running npm install (dependencies changed)..."
-    npm install
-    touch "$NPM_STAMP"
-    print_done "npm install complete."
-else
-    print_step "📦 Skipping npm install (no changes)."
-    print_done "npm install skipped."
-fi
+print_step "📦 Running npm install..."
+npm install
+print_done "npm install complete."
 
 # 🔧 Project setup
 print_step "⚙️ Running rokit install..."
@@ -99,10 +93,10 @@ print_done "Output directory ready."
 
 print_step "🚀 Starting TypeScript compilation..."
 
-npx rbxtsc -w -p "$BASE_DIR/build/tsconfig.json" --rojo "$BASE_DIR/build/default.project.json" -i out/include &
+npx rbxtsc -w -p "$BASE_DIR/build/tsconfig.json" --rojo "$BASE_DIR/build/default.project.json" -i dist/include &
 BASE_PID=$!
 
-npx rbxtsc -w -p "$PLACE_DIR/build/tsconfig.json" --rojo "$PLACE_DIR/build/default.project.json" -i out/include &
+npx rbxtsc -w -p "$PLACE_DIR/build/tsconfig.json" --rojo "$PLACE_DIR/build/default.project.json" -i dist/include &
 PLACE_PID=$!
 
 # Trap Ctrl+C to kill both watchers cleanly

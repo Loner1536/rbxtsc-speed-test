@@ -5,35 +5,34 @@
     "$className": "DataModel",
     "ReplicatedStorage": {
       "rbxts": {
-        "$path": "../../../out/include"
-      },
-      "$path": "../../../out/include",
-      "node_modules": {
-        "$className": "Folder",
-        "@rbxts": {
-          "$path": "node_modules/@rbxts"
-        },
-        "@flamework": {
-          "$path": "node_modules/@flamework"
-        },
-        "@rbxts-js": {
-          "$path": "node_modules/@rbxts-js"
+        "$path": "../../../dist/include",
+        "node_modules": {
+          "$className": "Folder",
+          "@rbxts": {
+            "$path": "node_modules/@rbxts"
+          },
+          "@flamework": {
+            "$path": "node_modules/@flamework"
+          },
+          "@rbxts-js": {
+            "$path": "node_modules/@rbxts-js"
+          }
         }
       },
       "base": {
         "$className": "Folder",
         "client": {
-          "$path": "../../../out/base/client"
+          "$path": "../../../dist/out/base/client"
         },
         "shared": {
-          "$path": "../../../out/base/shared"
+          "$path": "../../../dist/out/base/shared"
         }
       }
     },
     "ServerScriptService": {
       "base": {
         "server": {
-          "$path": "../../../out/base/server"
+          "$path": "../../../dist/out/base/server"
         }
       }
     }

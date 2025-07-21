@@ -14,7 +14,6 @@
         4000,
         8080
     ],
-    // Removed dos2unix installation and conversion from here
     "postCreateCommand": "bash ./scripts/shell/postStart.sh",
     "remoteUser": "root",
     "containerEnv": {
@@ -23,19 +22,38 @@
     "customizations": {
         "vscode": {
             "settings": {
+                // Editor
                 "editor.defaultFormatter": "esbenp.prettier-vscode",
-                "eslint.format.enable": true,
+                "editor.bracketPairColorization.enabled": true,
+                "editor.formatOnSaveMode": "file",
+                "editor.formatOnType": false,
                 "editor.insertSpaces": true,
                 "editor.formatOnSave": true,
-                "eslint.run": "onType",
+                // Files
+                "files.autoSave": "onFocusChange",
+                // Terminal
+                "terminal.integrated.fontFamily": "'Monaspace Radon Frozen', 'FiraCode Nerd Font'",
+                "terminal.integrated.defaultProfile.windows": "Git Bash",
+                // Prettier
                 "prettier.bracketSameLine": false,
                 "prettier.trailingComma": "none",
                 "prettier.semi": false,
                 "prettier.tabWidth": 4,
-                "files.eol": "\n",
-                "javascript.format.semicolons": "insert",
+                // Jest
                 "jest.jestCommandLine": "npm run test:jest --",
                 "jest.runMode": "on-demand",
+                // Cuddle
+                "cuddle.display.highlightWholeLine": "never",
+                "cuddle.detection.requireClosingText": true,
+                "cuddle.display.drawConnectingLines": true,
+                // Type Script
+                "typescript.tsserver.path": "./node_modules/typescript/lib/tsserver.js",
+                "typescript.tsdk": "./node_modules/typescript/lib",
+                "typescript.enablePromptUseWorkspaceTsdk": true,
+                "typescript.format.semicolons": "insert",
+                // Java Scripts
+                "javascript.format.semicolons": "insert",
+                // Ignores / Excludes
                 "luau-lsp.ignoreGlobs": [
                     "**/node_modules/**",
                     "**/old_common/**",
@@ -53,15 +71,7 @@
                     "dist": true,
                     "out": true
                 },
-                "terminal.integrated.fontFamily": "'Monaspace Radon Frozen', 'FiraCode Nerd Font'",
-                "terminal.integrated.defaultProfile.windows": "Git Bash",
-                "typescript.tsserver.path": "./node_modules/typescript/lib/tsserver.js",
-                "typescript.tsdk": "./node_modules/typescript/lib",
-                "typescript.enablePromptUseWorkspaceTsdk": true,
-                "typescript.format.semicolons": "insert",
-                "[json]": {
-                    "editor.defaultFormatter": "vscode.json-language-features"
-                },
+                // Formatters
                 "[shellscript]": {
                     "editor.defaultFormatter": "mkhl.shfmt"
                 }
@@ -73,7 +83,6 @@
                 "christian-kohler.npm-intellisense",
                 "DavidAnson.vscode-markdownlint",
                 "github.vscode-github-actions",
-                "checkraisefold.blink-vscode",
                 "roblox-ts.vscode-roblox-ts",
                 "foxundermoon.shell-format",
                 "tamasfe.even-better-toml",
@@ -88,6 +97,7 @@
                 "filiptibell.deputy",
                 "Orta.vscode-jest",
                 "eamodio.gitlens",
+                "dphfox.cuddle",
                 "mkhl.shfmt"
             ]
         }

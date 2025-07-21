@@ -8,12 +8,15 @@ if (!feature) {
 }
 
 const toPosix = (p) => p.split(path.sep).join("/")
-
 const outputDir = path.join("sources", feature, "build")
 
-// Helper to get relative paths from outputDir to target folder
 function relativeToOutputDir(targetPath) {
     return toPosix(path.relative(outputDir, targetPath))
+}
+function nodeModulesPath(packageName) {
+    return relativeToOutputDir(
+        path.join(outputDir, "node_modules", packageName)
+    )
 }
 
 function makeClientEntry(name) {
@@ -21,10 +24,14 @@ function makeClientEntry(name) {
         [name]: {
             $className: "Folder",
             client: {
-                $path: relativeToOutputDir(path.join("out", name, "client"))
+                $path: relativeToOutputDir(
+                    path.join("dist/out", name, "client")
+                )
             },
             shared: {
-                $path: relativeToOutputDir(path.join("out", name, "shared"))
+                $path: relativeToOutputDir(
+                    path.join("dist/out", name, "shared")
+                )
             }
         }
     }
@@ -34,7 +41,9 @@ function makeServerEntry(name) {
     return {
         [name]: {
             server: {
-                $path: relativeToOutputDir(path.join("out", name, "server"))
+                $path: relativeToOutputDir(
+                    path.join("dist/out", name, "server")
+                )
             }
         }
     }
@@ -46,18 +55,19 @@ const tree = {
     tree: {
         $className: "DataModel",
         ReplicatedStorage: {
-            rbxts: { $path: relativeToOutputDir("include") },
-            $path: relativeToOutputDir("out/include"),
-            node_modules: {
-                $className: "Folder",
-                "@rbxts": {
-                    $path: "node_modules/@rbxts"
-                },
-                "@flamework": {
-                    $path: "node_modules/@flamework"
-                },
-                "@rbxts-js": {
-                    $path: "node_modules/@rbxts-js"
+            rbxts: {
+                $path: relativeToOutputDir("dist/include"),
+                node_modules: {
+                    $className: "Folder",
+                    "@rbxts": {
+                        $path: nodeModulesPath("@rbxts")
+                    },
+                    "@flamework": {
+                        $path: nodeModulesPath("@flamework")
+                    },
+                    "@rbxts-js": {
+                        $path: nodeModulesPath("@rbxts-js")
+                    }
                 }
             }
         },
@@ -65,12 +75,7 @@ const tree = {
     }
 }
 
-// Avoid duplicating rbxts
-Object.assign(tree.tree.ReplicatedStorage, {
-    rbxts: {
-        $path: relativeToOutputDir("out/include")
-    }
-})
+// Don't overwrite rbxts — it's already in the tree object above now.
 
 Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"))
 Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"))
@@ -81,7 +86,6 @@ if (feature !== "base") {
 }
 
 fs.mkdirSync(outputDir, { recursive: true })
-
 fs.writeFileSync(
     path.join(outputDir, "default.project.json"),
     JSON.stringify(tree, null, 2)

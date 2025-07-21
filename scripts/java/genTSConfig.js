@@ -11,12 +11,12 @@ if (!feature) {
 
 const buildDir = path.join("sources", feature, "build")
 const featureDir = path.join("sources", feature)
+const outDir = path.join("dist/out", feature)
 const srcDir = path.join(featureDir, "src")
-const outDir = path.join("out", feature)
 
 // Relative paths from buildDir
-const relativeToRoot = path.relative(buildDir, ".")
 const relativeToSrc = path.relative(buildDir, srcDir)
+const relativeToRoot = path.relative(buildDir, ".")
 
 const tsBuildInfoFile = path.join(relativeToRoot, outDir + ".tsbuildinfo")
 const extendsRelative = path.join(relativeToRoot, "tsconfig.json")
@@ -30,7 +30,7 @@ const tsconfig = {
         outDir: toPosix(outDirRelative),
         rootDir: toPosix(relativeToSrc),
         baseUrl: toPosix(relativeToSrc),
-        typeRoots: ["node_modules/@rbxts"],
+        typeRoots: ["node_modules/@rbxts", "node_modules/@flamework"],
         paths: {
             "@shared/*": [toPosix(path.join(relativeToSrc, "shared", "*"))],
             "@server/*": [toPosix(path.join(relativeToSrc, "server", "*"))],
