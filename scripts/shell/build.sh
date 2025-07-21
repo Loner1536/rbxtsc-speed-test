@@ -21,7 +21,7 @@ print_error() {
     echo -e "${RED}❌ $1${RESET}"
 }
 
-# 🧠 Args
+# 🧠 Arguments
 PLACE=${1:-}
 if [ -z "$PLACE" ]; then
     print_error "Usage: $0 <place-name> [include-base]"
@@ -50,7 +50,7 @@ PLACE_PROJECT="$ROOT_DIR/$PLACE.project.json"
 OUTPUT_DIR="$ROOT_DIR/dist/out"
 INCLUDE_DIR="$ROOT_DIR/dist/include"
 
-# Validate project
+# Check package.json presence at root
 if [ ! -f "$ROOT_DIR/package.json" ]; then
     print_error "package.json not found in root ($ROOT_DIR)"
     exit 1
@@ -78,29 +78,19 @@ node "$ROOT_DIR/scripts/java/genTSConfig.js" "$PLACE"
 
 print_done "Generated Rojo Trees and TS Configs."
 
-print_step "🚀 Starting TypeScript compilation in watch mode..."
+print_step "🚀 Compiling TypeScript..."
 
 if [[ "$INCLUDE_BASE" == "true" ]]; then
-    npx rbxtsc -w -p "$BASE_TSCONFIG" --rojo "$BASE_PROJECT" -i "$INCLUDE_DIR" &
-    BASE_PID=$!
-else
-    BASE_PID=""
+    npx rbxtsc -p "$BASE_TSCONFIG" --rojo "$BASE_PROJECT" -i "$INCLUDE_DIR"
+    print_done "Base compiled."
 fi
 
-npx rbxtsc -w -p "$PLACE_TSCONFIG" --rojo "$PLACE_PROJECT" -i "$INCLUDE_DIR" &
-PLACE_PID=$!
+npx rbxtsc -p "$PLACE_TSCONFIG" --rojo "$PLACE_PROJECT" -i "$INCLUDE_DIR"
+print_done "'$PLACE' compiled."
 
-print_step "🛠️  Starting Rojo server..."
-rojo serve "$PLACE_PROJECT" &
-ROJO_PID=$!
+print_step "📦 Building .rbxlx file with Rojo..."
 
-# Graceful shutdown
-trap 'echo -e "\n${YELLOW}⚠️ Interrupt received, stopping processes...${RESET}"; [[ -n "$BASE_PID" ]] && kill $BASE_PID; kill $PLACE_PID; kill $ROJO_PID; exit 1' SIGINT
+ROJO_OUTPUT="$SOURCES_DIR/$PLACE/$PLACE.rbxlx"
+rojo build "$PLACE_PROJECT" -o "$ROJO_OUTPUT"
 
-if [[ -n "$BASE_PID" ]]; then
-    wait $BASE_PID $PLACE_PID $ROJO_PID
-else
-    wait $PLACE_PID $ROJO_PID
-fi
-
-print_done "Compilation and Rojo serve complete."
+print_done ".rbxlx build complete: $ROJO_OUTPUT"

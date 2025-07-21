@@ -1,9 +1,9 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "../dist/out/base.tsbuildinfo",
-    "outDir": "../dist/out/base",
-    "rootDir": "base/src",
+    "tsBuildInfoFile": "dist/out/base.tsbuildinfo",
+    "outDir": "dist/out/base",
+    "rootDir": "sources/base/src",
     "baseUrl": ".",
     "typeRoots": [
       "node_modules/@rbxts",
@@ -11,13 +11,13 @@
     ],
     "paths": {
       "@shared/*": [
-        "base/src/shared/*"
+        "sources/base/src/shared/*"
       ],
       "@server/*": [
-        "base/src/server/*"
+        "sources/base/src/server/*"
       ],
       "@client/*": [
-        "base/src/client/*"
+        "sources/base/src/client/*"
       ]
     },
     "plugins": [
@@ -28,7 +28,7 @@
     ]
   },
   "include": [
-    "base/src"
+    "sources/base/src"
   ],
   "exclude": []
 }

@@ -1,43 +1,44 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require("fs")
+const path = require("path")
 
-const toPosix = (p) => p.split(path.sep).join("/");
+const toPosix = (p) => p.split(path.sep).join("/")
 
-const feature = process.argv[2];
+const feature = process.argv[2]
 if (!feature) {
-    console.error("❌ Usage: node genTsconfig.js <feature>");
-    process.exit(1);
+    console.error("❌ Usage: node genTsconfig.js <feature>")
+    process.exit(1)
 }
 
-// Paths
-const sourcesDir = "sources";
-const featureSrcDir = path.join(sourcesDir, feature, "src");
-const tsconfigOutPath = path.join(sourcesDir, `${feature}.tsconfig.json`);
-const outDir = path.join("dist/out", feature);
+// Base directory is root
+const rootDir = "."
 
-// Relative path helper (from sources/)
-const relativeToSources = (targetPath) => path.relative(sourcesDir, targetPath);
+// Paths
+const sourcesDir = "sources"
+const featureSrcDir = path.join(sourcesDir, feature, "src")
+const tsconfigOutPath = path.join(rootDir, `${feature}.tsconfig.json`)
+const outDir = path.join("dist/out", feature)
+
+// Relative path helper (from root)
+const relativeToRoot = (targetPath) =>
+    toPosix(path.relative(rootDir, targetPath))
 
 const tsconfig = {
-    extends: toPosix(relativeToSources("tsconfig.json")),
+    extends: "./tsconfig.json",
     compilerOptions: {
-        tsBuildInfoFile: toPosix(relativeToSources(`${outDir}.tsbuildinfo`)),
-        outDir: toPosix(relativeToSources(outDir)),
-        rootDir: toPosix(relativeToSources(featureSrcDir)),
+        tsBuildInfoFile: relativeToRoot(`${outDir}.tsbuildinfo`),
+        outDir: relativeToRoot(outDir),
+        rootDir: relativeToRoot(featureSrcDir),
         baseUrl: ".",
-        typeRoots: [
-            "node_modules/@rbxts",
-            "node_modules/@flamework"
-        ],
+        typeRoots: ["node_modules/@rbxts", "node_modules/@flamework"],
         paths: {
             "@shared/*": [
-                toPosix(path.join(relativeToSources(featureSrcDir), "shared", "*"))
+                toPosix(path.join(relativeToRoot(featureSrcDir), "shared", "*"))
             ],
             "@server/*": [
-                toPosix(path.join(relativeToSources(featureSrcDir), "server", "*"))
+                toPosix(path.join(relativeToRoot(featureSrcDir), "server", "*"))
             ],
             "@client/*": [
-                toPosix(path.join(relativeToSources(featureSrcDir), "client", "*"))
+                toPosix(path.join(relativeToRoot(featureSrcDir), "client", "*"))
             ]
         },
         plugins: [
@@ -47,12 +48,9 @@ const tsconfig = {
             }
         ]
     },
-    include: [toPosix(relativeToSources(featureSrcDir))],
+    include: [relativeToRoot(featureSrcDir)],
     exclude: []
-};
+}
 
-// Ensure sources/ exists
-fs.mkdirSync(sourcesDir, { recursive: true });
-
-// Write to sources/<feature>.tsconfig.json
-fs.writeFileSync(tsconfigOutPath, JSON.stringify(tsconfig, null, 2));
+// Write to root/<feature>.tsconfig.json
+fs.writeFileSync(tsconfigOutPath, JSON.stringify(tsconfig, null, 2))

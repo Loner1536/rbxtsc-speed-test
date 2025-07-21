@@ -22,6 +22,28 @@
             "problemMatcher": [
                 "$tsc"
             ]
+        },
+        {
+            "label": "Build: lobby",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "./scripts/shell/build.sh",
+                "lobby",
+                "true"
+            ],
+            "group": "build",
+            "presentation": {
+                "showReuseMessage": true,
+                "reveal": "silent",
+                "panel": "shared",
+                "clear": false,
+                "focus": false,
+                "echo": true
+            },
+            "problemMatcher": [
+                "$tsc"
+            ]
         }
     ]
 }

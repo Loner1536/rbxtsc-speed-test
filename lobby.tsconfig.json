@@ -1,9 +1,9 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "../dist/out/lobby.tsbuildinfo",
-    "outDir": "../dist/out/lobby",
-    "rootDir": "lobby/src",
+    "tsBuildInfoFile": "dist/out/lobby.tsbuildinfo",
+    "outDir": "dist/out/lobby",
+    "rootDir": "sources/lobby/src",
     "baseUrl": ".",
     "typeRoots": [
       "node_modules/@rbxts",
@@ -11,13 +11,13 @@
     ],
     "paths": {
       "@shared/*": [
-        "lobby/src/shared/*"
+        "sources/lobby/src/shared/*"
       ],
       "@server/*": [
-        "lobby/src/server/*"
+        "sources/lobby/src/server/*"
       ],
       "@client/*": [
-        "lobby/src/client/*"
+        "sources/lobby/src/client/*"
       ]
     },
     "plugins": [
@@ -28,7 +28,7 @@
     ]
   },
   "include": [
-    "lobby/src"
+    "sources/lobby/src"
   ],
   "exclude": []
 }

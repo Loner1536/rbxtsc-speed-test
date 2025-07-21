@@ -1,2 +1,46 @@
-# Auto detect text files and perform LF normalization
+# ─────────────────────────────
+# 🔄 Normalize line endings
+# ─────────────────────────────
+
 * text=auto
+
+# Force LF for source code
+*.ts     text eol=lf
+*.tsx    text eol=lf
+*.js     text eol=lf
+*.json   text eol=lf
+*.toml   text eol=lf
+*.sh     text eol=lf
+*.lua    text eol=lf
+*.luau   text eol=lf
+*.rbxm   binary
+*.rbxmx  binary
+
+# ─────────────────────────────
+# 🧪 Ignore binary / compiled files from diff
+# ─────────────────────────────
+
+# Roblox place files — treat as binary
+*.rbxlx  binary
+*.rbxl   binary
+
+# Luau runtime output (compiled by rbxtsc)
+*.luau   text eol=lf
+
+# TypeScript metadata — ignore diff
+*.tsbuildinfo text diff=ignore
+
+# ─────────────────────────────
+# 📊 Linguist overrides (GitHub stats)
+# ─────────────────────────────
+
+# Ignore generated/dist for GitHub language stats
+dist/* linguist-vendored
+scripts/* linguist-vendored
+*.rbxlx linguist-generated
+
+# Ignore node_modules
+node_modules/** linguist-vendored
+
+# Ignore flamework build artifacts
+flamework.build linguist-generated

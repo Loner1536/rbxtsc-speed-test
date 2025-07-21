@@ -1,25 +1,25 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require("fs")
+const path = require("path")
 
-const feature = process.argv[2];
-const includeBase = process.argv[3] !== "false"; // default: true
+const feature = process.argv[2]
+const includeBase = process.argv[3] !== "false" // default: true
 
 if (!feature) {
-    console.error("❌ Usage: node genRojoTree.js <feature> [includeBase=true|false]");
-    process.exit(1);
+    console.error(
+        "❌ Usage: node genRojoTree.js <feature> [includeBase=true|false]"
+    )
+    process.exit(1)
 }
 
-const toPosix = (p) => p.split(path.sep).join("/");
+const toPosix = (p) => p.split(path.sep).join("/")
+const rootDir = "."
 
-// Base directory for relative pathing and output
-const sourcesDir = "sources";
-
-function relativeToSources(targetPath) {
-    return toPosix(path.relative(sourcesDir, targetPath));
+function relativeToRoot(targetPath) {
+    return toPosix(path.relative(rootDir, targetPath))
 }
 
 function nodeModulesPath(packageName) {
-    return relativeToSources(path.join(sourcesDir, "node_modules", packageName));
+    return relativeToRoot(path.join("node_modules", packageName))
 }
 
 function makeClientEntry(name) {
@@ -27,29 +27,27 @@ function makeClientEntry(name) {
         [name]: {
             $className: "Folder",
             client: {
-                $path: relativeToSources(path.join("dist/out", name, "client")),
-                controllers: {
-                    $path: relativeToSources(path.join("dist/out", name, "client", "controllers"))
-                }
+                $className: "Folder",
+                $path: relativeToRoot(path.join("dist/out", name, "client"))
             },
             shared: {
-                $path: relativeToSources(path.join("dist/out", name, "shared"))
+                $className: "Folder",
+                $path: relativeToRoot(path.join("dist/out", name, "shared"))
             }
         }
-    };
+    }
 }
 
 function makeServerEntry(name) {
     return {
         [name]: {
+            $className: "Folder",
             server: {
-                $path: relativeToSources(path.join("dist/out", name, "server")),
-                services: {
-                    $path: relativeToSources(path.join("dist/out", name, "server", "services"))
-                }
+                $className: "Folder",
+                $path: relativeToRoot(path.join("dist/out", name, "server"))
             }
         }
-    };
+    }
 }
 
 // Rojo project structure
@@ -60,7 +58,8 @@ const tree = {
         $className: "DataModel",
         ReplicatedStorage: {
             rbxts_include: {
-                $path: relativeToSources("dist/include"),
+                $className: "Folder",
+                $path: relativeToRoot("dist/include"),
                 node_modules: {
                     $className: "Folder",
                     "@rbxts": {
@@ -77,21 +76,18 @@ const tree = {
         },
         ServerScriptService: {}
     }
-};
-
-// Add base if requested
-if (includeBase) {
-    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"));
-    Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"));
 }
 
-// Always include the current feature
-Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature));
-Object.assign(tree.tree.ServerScriptService, makeServerEntry(feature));
+if (includeBase) {
+    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"))
+    Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"))
+}
 
-// Ensure `sources/` exists and write the .project.json
-fs.mkdirSync(sourcesDir, { recursive: true });
+Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature))
+Object.assign(tree.tree.ServerScriptService, makeServerEntry(feature))
+
+// Write project JSON
 fs.writeFileSync(
-    path.join(sourcesDir, `${feature}.project.json`),
+    path.join(rootDir, `${feature}.project.json`),
     JSON.stringify(tree, null, 2)
-);
+)
