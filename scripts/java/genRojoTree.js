@@ -27,11 +27,9 @@ function makeClientEntry(name) {
         [name]: {
             $className: "Folder",
             client: {
-                $className: "Folder",
                 $path: relativeToRoot(path.join("dist/out", name, "client"))
             },
             shared: {
-                $className: "Folder",
                 $path: relativeToRoot(path.join("dist/out", name, "shared"))
             }
         }
@@ -43,7 +41,6 @@ function makeServerEntry(name) {
         [name]: {
             $className: "Folder",
             server: {
-                $className: "Folder",
                 $path: relativeToRoot(path.join("dist/out", name, "server"))
             }
         }
@@ -58,7 +55,6 @@ const tree = {
         $className: "DataModel",
         ReplicatedStorage: {
             rbxts_include: {
-                $className: "Folder",
                 $path: relativeToRoot("dist/include"),
                 node_modules: {
                     $className: "Folder",

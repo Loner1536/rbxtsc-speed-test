@@ -5,7 +5,6 @@
     "$className": "DataModel",
     "ReplicatedStorage": {
       "rbxts_include": {
-        "$className": "Folder",
         "$path": "dist/include",
         "node_modules": {
           "$className": "Folder",
@@ -23,11 +22,9 @@
       "base": {
         "$className": "Folder",
         "client": {
-          "$className": "Folder",
           "$path": "dist/out/base/client"
         },
         "shared": {
-          "$className": "Folder",
           "$path": "dist/out/base/shared"
         }
       }
@@ -36,7 +33,6 @@
       "base": {
         "$className": "Folder",
         "server": {
-          "$className": "Folder",
           "$path": "dist/out/base/server"
         }
       }
