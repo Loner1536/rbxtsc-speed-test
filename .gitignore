@@ -35,10 +35,19 @@ yarn.lock
 Thumbs.db
 
 # ─────────────────────────────
+# 🔧 Ignore all tsconfig files except root tsconfig.json
+# ─────────────────────────────
+
+# Ignore all tsconfig.json files in subfolders
+**/tsconfig.json
+# But explicitly allow the root tsconfig.json
+!tsconfig.json
+
+# ─────────────────────────────
 # ✅ Explicitly allow sources
 # ─────────────────────────────
 
 !sources/**
 
-# Prevent empty folders
+# Prevent empty folders in scripts (like node_modules inside scripts)
 scripts/**/node_modules/

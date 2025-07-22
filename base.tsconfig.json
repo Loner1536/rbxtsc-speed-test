@@ -19,13 +19,7 @@
       "@client/*": [
         "sources/base/src/client/*"
       ]
-    },
-    "plugins": [
-      {
-        "transform": "rbxts-transformer-flamework",
-        "obfuscation": true
-      }
-    ]
+    }
   },
   "include": [
     "sources/base/src"

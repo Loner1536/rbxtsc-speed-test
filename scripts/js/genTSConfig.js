@@ -40,13 +40,7 @@ const tsconfig = {
             "@client/*": [
                 toPosix(path.join(relativeToRoot(featureSrcDir), "client", "*"))
             ]
-        },
-        plugins: [
-            {
-                transform: "rbxts-transformer-flamework",
-                obfuscation: true
-            }
-        ]
+        }
     },
     include: [relativeToRoot(featureSrcDir)],
     exclude: []

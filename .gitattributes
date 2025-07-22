@@ -37,6 +37,7 @@
 # Ignore generated/dist for GitHub language stats
 dist/* linguist-vendored
 scripts/* linguist-vendored
+scripts/language/** linguist-generated
 *.rbxlx linguist-generated
 
 # Ignore node_modules
