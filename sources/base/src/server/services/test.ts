@@ -1,7 +1,7 @@
-import { Service, OnStart } from "@rbxts/flamework"
+import { Service, OnStart } from "@flamework/core"
 
 @Service({})
-export class Server implements OnStart {
+export class BaseServer implements OnStart {
     onStart(): void {
         print("Base Server")
     }

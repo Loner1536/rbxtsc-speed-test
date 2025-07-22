@@ -1,8 +1,8 @@
 import { Controller, OnStart } from "@flamework/core"
 
 @Controller({})
-export class Client implements OnStart {
+export class LobbyClient implements OnStart {
     onStart(): void {
-        print("Base Client")
+        print("Lobby Client")
     }
 }

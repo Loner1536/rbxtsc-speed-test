@@ -71,4 +71,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends fzf && rm -rf /
 
 ENV PATH="/root/.rokit/bin:${PATH}"
 
+EXPOSE 34872
+
 CMD ["zsh"]

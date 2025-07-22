@@ -90,6 +90,28 @@ fi
 npx rbxtsc -w -p "$PLACE_TSCONFIG" --rojo "$PLACE_PROJECT" -i "$INCLUDE_DIR" &
 PLACE_PID=$!
 
+print_step "⏳ Waiting for compiled output to exist..."
+
+EXPECTED_PATH="$OUTPUT_DIR/$PLACE/client"
+
+MAX_WAIT=15 # seconds
+TIME_WAITED=0
+
+while [ ! -d "$EXPECTED_PATH" ] && [ "$TIME_WAITED" -lt "$MAX_WAIT" ]; do
+    sleep 1
+    TIME_WAITED=$((TIME_WAITED + 1))
+done
+
+if [ ! -d "$EXPECTED_PATH" ]; then
+    print_error "Timed out waiting for TypeScript output at: $EXPECTED_PATH"
+    # Optional: kill started processes before exiting
+    [[ -n "$BASE_PID" ]] && kill $BASE_PID || true
+    kill $PLACE_PID || true
+    exit 1
+fi
+
+print_done "Output exists: $EXPECTED_PATH"
+
 print_step "🛠️  Starting Rojo server..."
 rojo serve "$PLACE_PROJECT" &
 ROJO_PID=$!

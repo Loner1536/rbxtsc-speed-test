@@ -7,12 +7,10 @@
     "shutdownAction": "stopContainer",
     "workspaceFolder": "/workspace",
     "mounts": [
-        "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+        "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
     ],
     "forwardPorts": [
-        3000,
-        4000,
-        8080
+        34872
     ],
     "postCreateCommand": "bash ./scripts/shell/postStart.sh",
     "remoteUser": "root",
