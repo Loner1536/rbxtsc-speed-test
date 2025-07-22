@@ -1,8 +1,8 @@
 import { Controller, OnStart } from "@flamework/core"
 
 @Controller({})
-export class BaseClient implements OnStart {
+export class CommonClient implements OnStart {
     onStart(): void {
-        print("Base Client")
+        print("Common Client")
     }
 }

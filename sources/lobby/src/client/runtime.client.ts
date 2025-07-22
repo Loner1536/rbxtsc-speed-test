@@ -1,7 +1,7 @@
 import { Flamework } from "@flamework/core"
 
-// Base
-Flamework.addPaths("dist/out/base/client/controllers")
+// Common
+Flamework.addPaths("dist/out/common/client/controllers")
 
 // Lobby
 Flamework.addPaths("dist/out/lobby/client/controllers")

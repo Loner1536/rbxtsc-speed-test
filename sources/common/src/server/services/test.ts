@@ -1,8 +1,8 @@
 import { Service, OnStart } from "@flamework/core"
 
 @Service({})
-export class BaseServer implements OnStart {
+export class CommonServer implements OnStart {
     onStart(): void {
-        print("Base Server")
+        print("Common Server")
     }
 }

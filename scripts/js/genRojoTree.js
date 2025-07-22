@@ -2,11 +2,11 @@ const fs = require("fs")
 const path = require("path")
 
 const feature = process.argv[2]
-const includeBase = process.argv[3] !== "false" // default: true
+const includeCommon = process.argv[3] !== "false" // default: true
 
 if (!feature) {
     console.error(
-        "❌ Usage: node genRojoTree.js <feature> [includeBase=true|false]"
+        "❌ Usage: node genRojoTree.js <feature> [includeCommon=true|false]"
     )
     process.exit(1)
 }
@@ -74,9 +74,9 @@ const tree = {
     }
 }
 
-if (includeBase) {
-    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("base"))
-    Object.assign(tree.tree.ServerScriptService, makeServerEntry("base"))
+if (includeCommon) {
+    Object.assign(tree.tree.ReplicatedStorage, makeClientEntry("common"))
+    Object.assign(tree.tree.ServerScriptService, makeServerEntry("common"))
 }
 
 Object.assign(tree.tree.ReplicatedStorage, makeClientEntry(feature))

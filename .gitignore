@@ -33,6 +33,8 @@ yarn.lock
 .DS_Store
 Thumbs.db
 
+places
+
 # ─────────────────────────────
 # 🔧 Ignore all rojo trees files except root tsconfig.json
 # ─────────────────────────────
@@ -55,6 +57,3 @@ Thumbs.db
 # ─────────────────────────────
 
 !sources/**
-
-# Prevent empty folders in scripts (like node_modules inside scripts)
-scripts/**/node_modules/
