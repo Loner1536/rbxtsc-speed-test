@@ -19,7 +19,6 @@ node_modules/
 # ⚙️ VSCode / Editor stuff
 # ─────────────────────────────
 
-.vscode/
 *.code-workspace
 
 # ─────────────────────────────
@@ -38,9 +37,10 @@ Thumbs.db
 # 🔧 Ignore all tsconfig files except root tsconfig.json
 # ─────────────────────────────
 
-# Ignore all tsconfig.json files in subfolders
-**/tsconfig.json
-# But explicitly allow the root tsconfig.json
+# Ignore all tsconfig files in the root that match *.tsconfig.json
+/*.tsconfig.json
+
+# But do NOT ignore the root tsconfig.json
 !tsconfig.json
 
 # ─────────────────────────────
