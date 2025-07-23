@@ -56,6 +56,8 @@ if [ ! -f "$ROOT_DIR/package.json" ]; then
     exit 1
 fi
 
+mkdir -p "dist/out"
+
 print_step "🧹 Cleaning build files and old configs..."
 
 find "$ROOT_DIR" -maxdepth 1 -type f -name "*.tsconfig.json" ! -name "tsconfig.json" -exec rm -f {} \;

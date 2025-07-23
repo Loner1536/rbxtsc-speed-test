@@ -37,6 +37,8 @@ if [ -z "$INCLUDE_COMMON" ]; then
     fi
 fi
 
+mkdir -p "dist/out"
+
 # 📁 Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 ROOT_DIR="$SCRIPT_DIR/../.."
